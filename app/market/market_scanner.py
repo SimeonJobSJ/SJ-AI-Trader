@@ -1,4 +1,4 @@
-from app.services.market_service import load_market
+from app.market.market_data import get_live_data
 from app.analysis.indicators import (
     calculate_sma,
     calculate_rsi,
@@ -25,7 +25,7 @@ def scan_markets():
     results = []
 
     for pair in PAIRS:
-        market = load_market(pair)
+        market = get_live_data(pair)
 
         market["SMA"] = calculate_sma(market)
         market["EMA"] = calculate_ema(market)
