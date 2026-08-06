@@ -3,6 +3,8 @@ from app.analysis.indicators import (
     calculate_sma,
     calculate_rsi,
     calculate_ema,
+    calculate_macd,
+
 )
 from app.analysis.market_analysis import (
     analyze_market,
@@ -29,17 +31,20 @@ def scan_markets():
 
         market["SMA"] = calculate_sma(market)
         market["EMA"] = calculate_ema(market)
+        market["MACD"], market["MACD_SIGNAL"], market["MACD_HIST"] = calculate_macd(market)
         market["RSI"] = calculate_rsi(market)
 
         analysis = analyze_market(market)
         signal = trading_signal(market)
 
         ai_data = {
-            "trend": analysis["trend"],
-            "rsi": market["RSI"].iloc[-1],
-            "price": market["Close"].iloc[-1],
-            "sma": market["SMA"].iloc[-1],
-             "ema": market["EMA"].iloc[-1],
+    "trend": analysis["trend"],
+    "rsi": market["RSI"].iloc[-1],
+    "price": market["Close"].iloc[-1],
+    "sma": market["SMA"].iloc[-1],
+    "ema": market["EMA"].iloc[-1],
+    "macd": market["MACD"].iloc[-1],
+
         }
 
         confidence, recommendation, reasons = calculate_confidence(ai_data)

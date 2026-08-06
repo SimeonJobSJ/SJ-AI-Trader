@@ -38,6 +38,14 @@ def calculate_confidence(analysis):
         confidence -= 10
         reasons.append("✗ Price Below EMA")
 
+    # MACD
+    if analysis["macd"] > 0:
+        confidence += 15
+        reasons.append("✓ MACD Bullish")
+    else:
+        confidence -= 15
+        reasons.append("✗ MACD Bearish")
+
     confidence = max(0, min(confidence, 100))
 
     if confidence >= 80:
