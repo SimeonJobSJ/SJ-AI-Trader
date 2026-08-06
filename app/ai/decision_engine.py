@@ -46,6 +46,14 @@ def calculate_confidence(analysis):
         confidence -= 15
         reasons.append("✗ MACD Bearish")
 
+    # Bollinger Bands
+    if analysis["price"] > analysis["bb_upper"]:
+        confidence -= 10
+        reasons.append("✗ Price Above Upper Band")
+    elif analysis["price"] < analysis["bb_lower"]:
+        confidence += 10
+        reasons.append("✓ Price Below Lower Band")
+
     confidence = max(0, min(confidence, 100))
 
     if confidence >= 80:

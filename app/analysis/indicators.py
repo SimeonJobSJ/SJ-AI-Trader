@@ -29,4 +29,16 @@ def calculate_macd(data):
     macd = ema12 - ema26
     signal = macd.ewm(span=9, adjust=False).mean()
     histogram = macd - signal
+
     return macd, signal, histogram
+
+
+def calculate_bollinger_bands(data, period=20):
+    sma = data["Close"].rolling(window=period).mean()
+
+    std = data["Close"].rolling(window=period).std()
+
+    upper_band = sma + (std * 2)
+    lower_band = sma - (std * 2)
+
+    return upper_band, lower_band

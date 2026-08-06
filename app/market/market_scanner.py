@@ -1,10 +1,10 @@
-from app.market.market_data import get_live_data
+from app.services.market_service import load_market
 from app.analysis.indicators import (
     calculate_sma,
     calculate_rsi,
     calculate_ema,
     calculate_macd,
-
+    calculate_bollinger_bands,
 )
 from app.analysis.market_analysis import (
     analyze_market,
@@ -22,29 +22,30 @@ PAIRS = [
     "USD/CAD",
 ]
 
-
 def scan_markets():
     results = []
 
     for pair in PAIRS:
-        market = get_live_data(pair)
+        market = load_market(pair)
 
         market["SMA"] = calculate_sma(market)
         market["EMA"] = calculate_ema(market)
         market["MACD"], market["MACD_SIGNAL"], market["MACD_HIST"] = calculate_macd(market)
+        market["BB_UPPER"], market["BB_LOWER"] = calculate_bollinger_bands(market)
         market["RSI"] = calculate_rsi(market)
 
         analysis = analyze_market(market)
         signal = trading_signal(market)
 
         ai_data = {
-    "trend": analysis["trend"],
-    "rsi": market["RSI"].iloc[-1],
-    "price": market["Close"].iloc[-1],
-    "sma": market["SMA"].iloc[-1],
-    "ema": market["EMA"].iloc[-1],
-    "macd": market["MACD"].iloc[-1],
-
+            "trend": analysis["trend"],
+            "rsi": market["RSI"].iloc[-1],
+            "price": market["Close"].iloc[-1],
+            "sma": market["SMA"].iloc[-1],
+            "ema": market["EMA"].iloc[-1],
+            "macd": market["MACD"].iloc[-1],
+            "bb_upper": market["BB_UPPER"].iloc[-1],
+            "bb_lower": market["BB_LOWER"].iloc[-1],
         }
 
         confidence, recommendation, reasons = calculate_confidence(ai_data)
