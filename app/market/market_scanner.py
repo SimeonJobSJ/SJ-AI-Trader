@@ -5,6 +5,7 @@ from app.analysis.indicators import (
     calculate_ema,
     calculate_macd,
     calculate_bollinger_bands,
+    calculate_atr,
 )
 from app.analysis.market_analysis import (
     analyze_market,
@@ -22,6 +23,7 @@ PAIRS = [
     "USD/CAD",
 ]
 
+
 def scan_markets():
     results = []
 
@@ -32,6 +34,7 @@ def scan_markets():
         market["EMA"] = calculate_ema(market)
         market["MACD"], market["MACD_SIGNAL"], market["MACD_HIST"] = calculate_macd(market)
         market["BB_UPPER"], market["BB_LOWER"] = calculate_bollinger_bands(market)
+        market["ATR"] = calculate_atr(market)
         market["RSI"] = calculate_rsi(market)
 
         analysis = analyze_market(market)
@@ -46,6 +49,7 @@ def scan_markets():
             "macd": market["MACD"].iloc[-1],
             "bb_upper": market["BB_UPPER"].iloc[-1],
             "bb_lower": market["BB_LOWER"].iloc[-1],
+            "atr": market["ATR"].iloc[-1],
         }
 
         confidence, recommendation, reasons = calculate_confidence(ai_data)
@@ -61,6 +65,7 @@ def scan_markets():
             "rsi": round(market["RSI"].iloc[-1], 2),
             "sma": round(market["SMA"].iloc[-1], 5),
             "ema": round(market["EMA"].iloc[-1], 5),
+            "atr": round(market["ATR"].iloc[-1], 5),
             "risk": risk,
             "reasons": reasons,
         })

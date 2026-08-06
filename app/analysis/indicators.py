@@ -42,3 +42,17 @@ def calculate_bollinger_bands(data, period=20):
     lower_band = sma - (std * 2)
 
     return upper_band, lower_band
+
+
+def calculate_atr(data, period=14):
+    high_low = data["High"] - data["Low"]
+
+    high_close = (data["High"] - data["Close"].shift()).abs()
+
+    low_close = (data["Low"] - data["Close"].shift()).abs()
+
+    true_range = high_low.combine(high_close, max).combine(low_close, max)
+
+    atr = true_range.rolling(period).mean()
+
+    return atr
