@@ -1,6 +1,4 @@
-import pandas as pd
 import yfinance as yf
-
 
 SYMBOLS = {
     "EUR/USD": "EURUSD=X",
@@ -9,7 +7,6 @@ SYMBOLS = {
     "AUD/USD": "AUDUSD=X",
     "USD/CAD": "CAD=X",
 }
-
 
 def load_market(pair):
     symbol = SYMBOLS[pair]
@@ -24,8 +21,13 @@ def load_market(pair):
         progress=False,
     )
 
-
-    if isinstance(data.columns, pd.MultiIndex):
+    # Flatten MultiIndex columns if present
+    if hasattr(data.columns, "levels"):
         data.columns = data.columns.get_level_values(0)
 
-    return data.reset_index()
+    data = data.reset_index()
+
+    print(data.tail())
+    print("Rows:", len(data))
+
+    return data

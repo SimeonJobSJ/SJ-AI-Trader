@@ -1,7 +1,6 @@
 def analyze_market(data):
 
     highest = data["High"].max()
-    ...
     lowest = data["Low"].min()
     average_close = data["Close"].mean()
 
@@ -29,6 +28,7 @@ def analyze_market(data):
 
 
 def trading_signal(data):
+
     latest_close = data["Close"].iloc[-1]
     latest_sma = data["SMA"].iloc[-1]
 
