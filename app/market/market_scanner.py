@@ -1,4 +1,5 @@
 from app.services.market_service import load_market
+
 from app.analysis.indicators import (
     calculate_sma,
     calculate_rsi,
@@ -7,12 +8,15 @@ from app.analysis.indicators import (
     calculate_bollinger_bands,
     calculate_atr,
 )
+
 from app.analysis.market_analysis import (
     analyze_market,
     trading_signal,
 )
+
 from app.ai.decision_engine import calculate_confidence
 from app.ai.risk_manager import calculate_risk
+from app.ai.trade_planner import create_trade_plan
 
 
 PAIRS = [
@@ -55,6 +59,13 @@ def scan_markets():
         confidence, recommendation, reasons = calculate_confidence(ai_data)
         risk = calculate_risk(confidence)
 
+
+        trade = create_trade_plan(
+            market["Close"].iloc[-1],
+            market["ATR"].iloc[-1],
+            signal,
+        )
+
         results.append({
             "pair": pair,
             "signal": signal,
@@ -66,6 +77,9 @@ def scan_markets():
             "sma": round(market["SMA"].iloc[-1], 5),
             "ema": round(market["EMA"].iloc[-1], 5),
             "atr": round(market["ATR"].iloc[-1], 5),
+            "entry": trade["entry"],
+            "stop_loss": trade["stop_loss"],
+            "take_profit": trade["take_profit"],
             "risk": risk,
             "reasons": reasons,
         })
@@ -73,7 +87,7 @@ def scan_markets():
     results = sorted(
         results,
         key=lambda x: x["confidence"],
-        reverse=True
+        reverse=True,
     )
 
     return results

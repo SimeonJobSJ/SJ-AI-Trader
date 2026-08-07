@@ -1,8 +1,5 @@
 def analyze_market(data):
 
-    print(type(data["Close"]))
-    print(data["Close"].head())
-
     highest = data["High"].max()
     ...
     lowest = data["Low"].min()

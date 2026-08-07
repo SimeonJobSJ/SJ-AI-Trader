@@ -4,12 +4,14 @@ def calculate_confidence(analysis):
     reasons = []
 
     # Trend
-    if analysis["trend"] == "UPTREND 📈":
+    if analysis["trend"] == "Bullish":
         confidence += 20
         reasons.append("✓ Bullish Trend")
-    else:
+    elif analysis["trend"] == "Bearish":
         confidence -= 10
         reasons.append("✗ Bearish Trend")
+    else:
+        reasons.append("➖ Sideways Market")
 
     # RSI
     if 40 <= analysis["rsi"] <= 60:

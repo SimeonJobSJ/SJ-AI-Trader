@@ -1,11 +1,31 @@
 import pandas as pd
-import os
+import yfinance as yf
+
+
+SYMBOLS = {
+    "EUR/USD": "EURUSD=X",
+    "GBP/USD": "GBPUSD=X",
+    "USD/JPY": "JPY=X",
+    "AUD/USD": "AUDUSD=X",
+    "USD/CAD": "CAD=X",
+}
 
 
 def load_market(pair):
-    filename = pair.lower().replace("/", "") + ".csv"
-    filepath = os.path.join("data", filename)
+    symbol = SYMBOLS[pair]
 
-    print(f"\nLoading: {filename}")
+    print(f"\nDownloading {pair}...")
 
-    return pd.read_csv(filepath)
+    data = yf.download(
+        symbol,
+        period="3mo",
+        interval="1h",
+        auto_adjust=True,
+        progress=False,
+    )
+
+
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = data.columns.get_level_values(0)
+
+    return data.reset_index()

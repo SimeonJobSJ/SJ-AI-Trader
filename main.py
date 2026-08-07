@@ -39,6 +39,9 @@ print(f"Pair        : {best['pair']}")
 print(f"Signal      : {best['signal']}")
 print(f"Confidence  : {best['confidence']}%")
 print(f"Risk        : {best['risk']}")
+print(f"Entry Price : {best['entry']:.5f}")
+print(f"Stop Loss   : {best['stop_loss']:.5f}")
+print(f"Take Profit : {best['take_profit']:.5f}")
 
 print("\nReasons")
 for reason in best["reasons"]:

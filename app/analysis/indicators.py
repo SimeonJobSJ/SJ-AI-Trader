@@ -44,6 +44,8 @@ def calculate_bollinger_bands(data, period=20):
     return upper_band, lower_band
 
 
+import pandas as pd
+
 def calculate_atr(data, period=14):
     high_low = data["High"] - data["Low"]
 
@@ -51,8 +53,11 @@ def calculate_atr(data, period=14):
 
     low_close = (data["Low"] - data["Close"].shift()).abs()
 
-    true_range = high_low.combine(high_close, max).combine(low_close, max)
+    true_range = pd.concat(
+        [high_low, high_close, low_close],
+        axis=1
+    ).max(axis=1)
 
-    atr = true_range.rolling(period).mean()
+    atr = true_range.rolling(window=period).mean()
 
     return atr
