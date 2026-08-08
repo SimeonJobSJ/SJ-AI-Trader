@@ -29,21 +29,35 @@ PAIRS = [
 
 
 def scan_markets():
+
     results = []
 
     for pair in PAIRS:
+
         market = load_market(pair)
 
+        # Technical indicators
         market["SMA"] = calculate_sma(market)
         market["EMA"] = calculate_ema(market)
-        market["MACD"], market["MACD_SIGNAL"], market["MACD_HIST"] = calculate_macd(market)
-        market["BB_UPPER"], market["BB_LOWER"] = calculate_bollinger_bands(market)
+
+        market["MACD"], market["MACD_SIGNAL"], market["MACD_HIST"] = calculate_macd(
+            market
+        )
+
+        market["BB_UPPER"], market["BB_LOWER"] = calculate_bollinger_bands(
+            market
+        )
+
         market["ATR"] = calculate_atr(market)
         market["RSI"] = calculate_rsi(market)
 
+        # Market analysis
         analysis = analyze_market(market)
+
+        # Trading signal
         signal = trading_signal(market)
 
+        # AI data
         ai_data = {
             "trend": analysis["trend"],
             "rsi": market["RSI"].iloc[-1],
@@ -54,36 +68,46 @@ def scan_markets():
             "bb_upper": market["BB_UPPER"].iloc[-1],
             "bb_lower": market["BB_LOWER"].iloc[-1],
             "atr": market["ATR"].iloc[-1],
+            "signal": signal,
         }
 
-        confidence, recommendation, reasons = calculate_confidence(ai_data)
+        # AI confidence
+        confidence, recommendation, reasons = calculate_confidence(
+            ai_data
+        )
+
+        # Risk
         risk = calculate_risk(confidence)
 
-
+        # Trade plan
         trade = create_trade_plan(
             market["Close"].iloc[-1],
             market["ATR"].iloc[-1],
             signal,
         )
 
-        results.append({
-            "pair": pair,
-            "signal": signal,
-            "confidence": confidence,
-            "recommendation": recommendation,
-            "trend": analysis["trend"],
-            "price": round(market["Close"].iloc[-1], 5),
-            "rsi": round(market["RSI"].iloc[-1], 2),
-            "sma": round(market["SMA"].iloc[-1], 5),
-            "ema": round(market["EMA"].iloc[-1], 5),
-            "atr": round(market["ATR"].iloc[-1], 5),
-            "entry": trade["entry"],
-            "stop_loss": trade["stop_loss"],
-            "take_profit": trade["take_profit"],
-            "risk": risk,
-            "reasons": reasons,
-        })
+        # Store result
+        results.append(
+            {
+                "pair": pair,
+                "signal": signal,
+                "confidence": confidence,
+                "recommendation": recommendation,
+                "trend": analysis["trend"],
+                "price": round(market["Close"].iloc[-1], 5),
+                "rsi": round(market["RSI"].iloc[-1], 2),
+                "sma": round(market["SMA"].iloc[-1], 5),
+                "ema": round(market["EMA"].iloc[-1], 5),
+                "atr": round(market["ATR"].iloc[-1], 5),
+                "entry": trade["entry"],
+                "stop_loss": trade["stop_loss"],
+                "take_profit": trade["take_profit"],
+                "risk": risk,
+                "reasons": reasons,
+            }
+        )
 
+    # Rank opportunities
     results = sorted(
         results,
         key=lambda x: x["confidence"],
