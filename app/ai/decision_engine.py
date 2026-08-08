@@ -5,7 +5,7 @@ def calculate_confidence(analysis):
 
     signal = analysis.get("signal", "")
 
-    # Determine trading direction
+    # Determine direction
     if signal.startswith("BUY"):
         direction = "BUY"
     elif signal.startswith("SELL"):
@@ -13,28 +13,48 @@ def calculate_confidence(analysis):
     else:
         direction = "HOLD"
 
+    # Track confluence
+    supporting = 0
+    opposing = 0
+
     # -------------------------
     # TREND
     # -------------------------
+    trend = analysis["trend"]
+
     if direction == "BUY":
-        if analysis["trend"] == "Bullish":
+        if trend == "Bullish":
             confidence += 20
-            reasons.append("✓ Bullish Trend")
-        elif analysis["trend"] == "Bearish":
+            supporting += 1
+            trend_alignment = "ALIGNED"
+            reasons.append("✓ Bullish Trend supports BUY")
+        elif trend == "Bearish":
             confidence -= 20
-            reasons.append("✗ Bearish Trend")
+            opposing += 1
+            trend_alignment = "OPPOSED"
+            reasons.append("✗ Bearish Trend opposes BUY")
         else:
+            trend_alignment = "MIXED"
             reasons.append("➖ Sideways Market")
 
     elif direction == "SELL":
-        if analysis["trend"] == "Bearish":
+        if trend == "Bearish":
             confidence += 20
-            reasons.append("✓ Bearish Trend")
-        elif analysis["trend"] == "Bullish":
+            supporting += 1
+            trend_alignment = "ALIGNED"
+            reasons.append("✓ Bearish Trend supports SELL")
+        elif trend == "Bullish":
             confidence -= 20
-            reasons.append("✗ Bullish Trend")
+            opposing += 1
+            trend_alignment = "OPPOSED"
+            reasons.append("✗ Bullish Trend opposes SELL")
         else:
+            trend_alignment = "MIXED"
             reasons.append("➖ Sideways Market")
+
+    else:
+        trend_alignment = "MIXED"
+        reasons.append("➖ No active trade direction")
 
     # -------------------------
     # RSI
@@ -43,23 +63,28 @@ def calculate_confidence(analysis):
 
     if 40 <= rsi <= 60:
         confidence += 10
+        supporting += 1
         reasons.append("✓ RSI Healthy")
 
     elif rsi > 70:
         if direction == "SELL":
             confidence += 15
+            supporting += 1
             reasons.append("✓ RSI Overbought supports SELL")
-        else:
+        elif direction == "BUY":
             confidence -= 15
-            reasons.append("✗ RSI Overbought")
+            opposing += 1
+            reasons.append("✗ RSI Overbought opposes BUY")
 
     elif rsi < 30:
         if direction == "BUY":
             confidence += 15
+            supporting += 1
             reasons.append("✓ RSI Oversold supports BUY")
-        else:
+        elif direction == "SELL":
             confidence -= 15
-            reasons.append("✗ RSI Oversold")
+            opposing += 1
+            reasons.append("✗ RSI Oversold opposes SELL")
 
     # -------------------------
     # SMA
@@ -70,17 +95,21 @@ def calculate_confidence(analysis):
     if direction == "BUY":
         if price > sma:
             confidence += 15
+            supporting += 1
             reasons.append("✓ Price Above SMA")
         else:
             confidence -= 15
+            opposing += 1
             reasons.append("✗ Price Below SMA")
 
     elif direction == "SELL":
         if price < sma:
             confidence += 15
+            supporting += 1
             reasons.append("✓ Price Below SMA")
         else:
             confidence -= 15
+            opposing += 1
             reasons.append("✗ Price Above SMA")
 
     # -------------------------
@@ -91,17 +120,21 @@ def calculate_confidence(analysis):
     if direction == "BUY":
         if price > ema:
             confidence += 10
+            supporting += 1
             reasons.append("✓ Price Above EMA")
         else:
             confidence -= 10
+            opposing += 1
             reasons.append("✗ Price Below EMA")
 
     elif direction == "SELL":
         if price < ema:
             confidence += 10
+            supporting += 1
             reasons.append("✓ Price Below EMA")
         else:
             confidence -= 10
+            opposing += 1
             reasons.append("✗ Price Above EMA")
 
     # -------------------------
@@ -112,17 +145,21 @@ def calculate_confidence(analysis):
     if direction == "BUY":
         if macd > 0:
             confidence += 15
+            supporting += 1
             reasons.append("✓ MACD Bullish")
         else:
             confidence -= 15
+            opposing += 1
             reasons.append("✗ MACD Bearish")
 
     elif direction == "SELL":
         if macd < 0:
             confidence += 15
+            supporting += 1
             reasons.append("✓ MACD Bearish")
         else:
             confidence -= 15
+            opposing += 1
             reasons.append("✗ MACD Bullish")
 
     # -------------------------
@@ -134,44 +171,80 @@ def calculate_confidence(analysis):
     if direction == "BUY":
         if price < lower:
             confidence += 10
+            supporting += 1
             reasons.append("✓ Price Below Lower Band")
         elif price > upper:
             confidence -= 10
+            opposing += 1
             reasons.append("✗ Price Above Upper Band")
 
     elif direction == "SELL":
         if price > upper:
             confidence += 10
+            supporting += 1
             reasons.append("✓ Price Above Upper Band")
         elif price < lower:
             confidence -= 10
+            opposing += 1
             reasons.append("✗ Price Below Lower Band")
 
     # -------------------------
-    # LIMIT CONFIDENCE
+    # CONFIDENCE LIMIT
     # -------------------------
     confidence = max(0, min(confidence, 100))
 
     # -------------------------
-    # FINAL RECOMMENDATION
+    # SIGNAL STRENGTH
+    # -------------------------
+    if supporting >= 5 and opposing == 0:
+        signal_strength = "STRONG"
+
+    elif supporting >= 4 and opposing <= 1:
+        signal_strength = "MODERATE"
+
+    elif supporting >= 3:
+        signal_strength = "WEAK"
+
+    else:
+        signal_strength = "VERY WEAK"
+
+    # -------------------------
+    # RECOMMENDATION
     # -------------------------
     if direction == "BUY":
-        if confidence >= 80:
+
+        if confidence >= 80 and signal_strength in ["STRONG", "MODERATE"]:
             recommendation = "STRONG BUY"
+
         elif confidence >= 65:
             recommendation = "BUY"
+
         else:
             recommendation = "HOLD"
 
     elif direction == "SELL":
-        if confidence >= 80:
+
+        if confidence >= 80 and signal_strength in ["STRONG", "MODERATE"]:
             recommendation = "STRONG SELL"
+
         elif confidence >= 65:
             recommendation = "SELL"
+
         else:
             recommendation = "HOLD"
 
     else:
         recommendation = "HOLD"
 
-    return confidence, recommendation, reasons
+    # -------------------------
+    # RETURN RESULTS
+    # -------------------------
+    return (
+        confidence,
+        recommendation,
+        reasons,
+        signal_strength,
+        trend_alignment,
+        supporting,
+        opposing,
+    )

@@ -10,10 +10,10 @@ print(
     f"{'Pair':<10}"
     f"{'Signal':<10}"
     f"{'Confidence':<12}"
+    f"{'Strength':<12}"
+    f"{'Alignment':<12}"
     f"{'Risk':<15}"
-    f"{'Trend':<15}"
-    f"{'RSI':<10}"
-    f"{'Price':<10}"
+    f"{'Trend':<12}"
 )
 
 print("-" * 90)
@@ -23,10 +23,10 @@ for result in results:
         f"{result['pair']:<10}"
         f"{result['signal']:<10}"
         f"{str(result['confidence']) + '%':<12}"
+        f"{result['signal_strength']:<12}"
+        f"{result['trend_alignment']:<12}"
         f"{result['risk']:<15}"
-        f"{result['trend']:<15}"
-        f"{result['rsi']:<10}"
-        f"{result['price']:<10}"
+        f"{result['trend']:<12}"
     )
 
 print("=" * 90)

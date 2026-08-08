@@ -72,13 +72,16 @@ def scan_markets():
         }
 
         # AI confidence
-        confidence, recommendation, reasons = calculate_confidence(
+        confidence, recommendation, reasons, signal_strength, trend_alignment, supporting, opposing = calculate_confidence(
             ai_data
         )
 
         # Risk
-        risk = calculate_risk(confidence)
-
+        risk = calculate_risk(
+    confidence,
+    signal_strength,
+    trend_alignment,
+)
         # Trade plan
         trade = create_trade_plan(
             market["Close"].iloc[-1],
@@ -93,6 +96,10 @@ def scan_markets():
                 "signal": signal,
                 "confidence": confidence,
                 "recommendation": recommendation,
+                "signal_strength": signal_strength,
+                "trend_alignment": trend_alignment,
+                "supporting": supporting,
+                "opposing": opposing,
                 "trend": analysis["trend"],
                 "price": round(market["Close"].iloc[-1], 5),
                 "rsi": round(market["RSI"].iloc[-1], 2),
