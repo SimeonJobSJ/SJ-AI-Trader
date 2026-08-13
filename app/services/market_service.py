@@ -1,5 +1,6 @@
 import yfinance as yf
 
+
 SYMBOLS = {
     "EUR/USD": "EURUSD=X",
     "GBP/USD": "GBPUSD=X",
@@ -8,7 +9,9 @@ SYMBOLS = {
     "USD/CAD": "CAD=X",
 }
 
+
 def load_market(pair):
+
     symbol = SYMBOLS[pair]
 
     print(f"\nDownloading {pair}...")
@@ -21,13 +24,15 @@ def load_market(pair):
         progress=False,
     )
 
-    # Flatten MultiIndex columns if present
-    if hasattr(data.columns, "levels"):
+    # Fix Yahoo Finance MultiIndex columns
+    if hasattr(data.columns, "nlevels") and data.columns.nlevels > 1:
         data.columns = data.columns.get_level_values(0)
 
     data = data.reset_index()
 
-    print(data.tail())
-    print("Rows:", len(data))
+    print(f"{pair} rows: {len(data)}")
+
+    if data.empty:
+        print(f"⚠️ WARNING: No data returned for {pair}")
 
     return data
